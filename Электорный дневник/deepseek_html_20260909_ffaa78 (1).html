@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Электронный дневник 7К - МБОУ «СОШ №2 им. Героя России Сафина А.М.»</title>
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --primary-dark: #5A4BD1;
+            --secondary: #00CEC9;
+            --accent: #FD79A8;
+            --dark: #2D3436;
+            --text: #333;
+            --text-light: #636E72;
+            --bg: #F8F9FA;
+            --card: #FFFFFF;
+            --border: #E1E8ED;
+            --success: #00B894;
+            --danger: #FF6B6B;
+            --warning: #FDCB6E;
+            --gradient: linear-gradient(135deg, #6C5CE7 0%, #00CEC9 100%);
+            --shadow-sm: 0 2px 10px rgba(0,0,0,0.08);
+            --shadow-md: 0 5px 20px rgba(0,0,0,0.12);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.18);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Тёмная тема (будет применяться при data-theme="dark") */
+        [data-theme="dark"] {
+            --dark: #1a1a2e;
+            --text: #E1E8ED;
+            --text-light: #B2BEC3;
+            --bg: #0f0f1a;
+            --card: #1a1a2e;
+            --border: #2d2d45;
+            --shadow-sm: 0 2px 10px rgba(0,0,0,0.3);
+            --shadow-md: 0 5px 20px rgba(0,0,0,0.4);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.05;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-circle-1 {
+            width: 600px;
+            height: 600px;
+            background: var(--primary);
+            top: -200px;
+            right: -200px;
+        }
+
+        .bg-circle-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--secondary);
+            bottom: -100px;
+            left: -100px;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.9); }
+            75% { transform: translate(20px, -20px) scale(1.05); }
+        }
+
+        .beta-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--gradient);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 11px;
+            z-index: 1000;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: var(--shadow-md);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Кнопка переключения темы */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: var(--card);
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            transition: var(--transition);
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .login-screen {
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s;
+            border: 1px solid var(--border);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .school-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .school-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 36px;
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+        }
+
+        .school-header h2 {
+            color: var(--text);
+            font-size: 18px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .school-header .class-name {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 15px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .school-header .school-address {
+            color: var(--text-light);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            transition: var(--transition);
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--card);
+            box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.3);
+        }
+
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+            background: rgba(255,107,107,0.1);
+            padding: 12px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .login-hint {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--bg);
+            border-radius: var(--radius);
+            font-size: 11px;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        .login-hint strong {
+            color: var(--primary);
+            font-size: 12px;
+        }
+
+        .diary-screen {
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 1200px;
+            min-height: 90vh;
+            display: none;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .diary-header {
+            background: var(--dark);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .diary-header h1 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .diary-header .school-info {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .diary-header .class-badge {
+            display: inline-block;
+            background: var(--gradient);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid rgba(255,255,255,0.3);
+            transition: var(--transition);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-role {
+            background: rgba(255,255,255,0.15);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .btn-change-password, .logout-btn {
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-change-password {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        .diary-content {
+            padding: 30px;
+            flex: 1;
+            background: var(--bg);
+            transition: background 0.3s;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            font-weight: 700;
+            border-bottom-color: var(--primary);
+        }
+
+        .add-homework {
+            background: var(--card);
+            padding: 25px;
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .add-homework h3 {
+            margin-bottom: 20px;
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .homework-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .homework-form input,
+        .homework-form select {
+            padding: 12px 14px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            transition: var(--transition);
+            width: 100%;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .add-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: var(--transition);
+            grid-column: span 2;
+            width: 180px;
+            justify-self: end;
+            margin-top: 10px;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(108, 92, 231, 0.4);
+        }
+
+        .homework-list h3 {
+            margin-bottom: 20px;
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .homework-item {
+            background: var(--card);
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 15px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            animation: fadeIn 0.5s;
+        }
+
+        .homework-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .homework-subject {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .homework-description {
+            color: var(--text);
+            margin: 10px 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .homework-date {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        .homework-author {
+            font-size: 10px;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .delete-btn {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            transition: var(--transition);
+            margin-top: 10px;
+            display: none;
+        }
+
+        .delete-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: var(--text-light);
+            padding: 40px 20px;
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 2px dashed var(--border);
+            font-size: 13px;
+        }
+
+        .class-list, .teacher-list, .rules-section {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .class-list h3, .teacher-list h3, .rules-section h3 {
+            margin-bottom: 20px;
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .student-item, .teacher-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            flex-wrap: wrap;
+            gap: 10px;
+            border-radius: 8px;
+        }
+
+        .student-item:hover, .teacher-item:hover {
+            background: var(--bg);
+            transform: translateX(5px);
+        }
+
+        .student-name, .teacher-name {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .student-role {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .role-commander { background: #FF6B6B; color: white; }
+        .role-starosta { background: #E53935; color: white; }
+        .role-student { background: #00B894; color: white; }
+        .role-teacher { background: #6C5CE7; color: white; }
+        .role-class-teacher { background: #FD79A8; color: white; }
+
+        .rule-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card);
+            padding: 30px;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 380px;
+            border: 1px solid var(--border);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .developer-credit {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-light);
+            font-size: 12px;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+        }
+
+        .developer-credit a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        #avatarInput { display: none; }
+
+        @media (max-width: 600px) {
+            .login-screen { padding: 25px 20px; }
+            .school-logo { width: 60px; height: 60px; font-size: 28px; border-radius: 15px; }
+            .diary-header { padding: 15px; flex-direction: column; text-align: center; }
+            .user-info { flex-direction: column; }
+            .diary-content { padding: 15px; }
+            .tabs { overflow-x: auto; }
+            .tab-btn { padding: 10px 15px; font-size: 11px; }
+            .homework-form { grid-template-columns: 1fr; }
+            .add-btn { grid-column: span 1; width: 100%; }
+            .student-item, .teacher-item { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Фоновые декорации -->
+    <div class="bg-decoration">
+        <div class="bg-circle bg-circle-1"></div>
+        <div class="bg-circle bg-circle-2"></div>
+    </div>
+
+    <!-- Переключатель темы -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Переключить тему">🌙</button>
+
+    <!-- Бейдж бета -->
+    <div class="beta-badge">BETA-версия</div>
+
+    <!-- Модальное окно смены пароля -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <h3>Смена пароля</h3>
+            <div class="input-group">
+                <label>Текущий пароль</label>
+                <input type="password" id="currentPassword" placeholder="Введите текущий пароль">
+            </div>
+            <div class="input-group">
+                <label>Новый пароль</label>
+                <input type="password" id="newPassword" placeholder="Введите новый пароль">
+            </div>
+            <div class="input-group">
+                <label>Повторите новый пароль</label>
+                <input type="password" id="confirmPassword" placeholder="Повторите новый пароль">
+            </div>
+            <button class="btn" onclick="changePassword()">Сменить пароль</button>
+            <button class="btn" style="background: #95a5a6; margin-top: 10px;" onclick="closePasswordModal()">Отмена</button>
+        </div>
+    </div>
+
+    <!-- Скрытый input для загрузки аватарки -->
+    <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarUpload(event)">
+
+    <!-- Экран входа -->
+    <div class="login-screen" id="loginScreen">
+        <div class="school-header">
+            <div class="school-logo">7К</div>
+            <h2>МБОУ «СОШ №2 им. Героя России Сафина А.М.»</h2>
+            <div class="class-name">7К кадетский класс</div>
+            <div class="school-address">с. Раевский</div>
+            <div style="margin-top: 15px; font-size: 20px; font-weight: 700; color: var(--text);">Электронный дневник</div>
+        </div>
+        
+        <div class="input-group">
+            <label for="username">Логин</label>
+            <input type="text" id="username" placeholder="Введите логин" autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label for="password">Пароль</label>
+            <input type="password" id="password" placeholder="Введите пароль" autocomplete="off">
+        </div>
+        <button class="btn" onclick="login()">Войти в дневник</button>
+        <div class="error-message" id="errorMessage">Неверный логин или пароль!</div>
+        
+        <div class="login-hint">
+            <strong>Логины для входа:</strong><br>
+            Админ: admin / admin123<br>
+            Командир: antipov / dragon77<br>
+            Староста: gorbunova / falcon89<br>
+            Учитель: albina_rishatovna / teacher01
+        </div>
+    </div>
+
+    <!-- Экран дневника -->
+    <div class="diary-screen" id="diaryScreen">
+        <div class="diary-header">
+            <div>
+                <h1>МБОУ «СОШ №2 им. Героя России Сафина А.М.»</h1>
+                <div class="school-info">с. Раевский</div>
+                <div class="class-badge">7К кадетский класс</div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar" onclick="document.getElementById('avatarInput').click()" title="Изменить аватар">
+                    <span id="avatarInitial">У</span>
+                </div>
+                <div>
+                    <div id="currentUser" style="font-weight: 600; font-size: 13px;"></div>
+                    <div class="user-role" id="userRole" style="margin-top: 3px;"></div>
+                </div>
+                <button class="btn-change-password" onclick="openPasswordModal()">Сменить пароль</button>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+        
+        <div class="diary-content">
+            <!-- Вкладки -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('homework')">Домашние задания</button>
+                <button class="tab-btn" onclick="switchTab('classlist')">Список класса</button>
+                <button class="tab-btn" onclick="switchTab('teachers')">Учителя</button>
+                <button class="tab-btn" onclick="switchTab('rules')">Правила</button>
+            </div>
+
+            <!-- Вкладка домашних заданий -->
+            <div id="homeworkTab">
+                <div class="add-homework" id="addHomeworkSection">
+                    <h3>Добавить домашнее задание</h3>
+                    <div class="homework-form">
+                        <div class="form-group">
+                            <label>Предмет</label>
+                            <select id="subject">
+                                <optgroup label="Русский язык и литература">
+                                    <option>Русский язык</option>
+                                    <option>Литература</option>
+                                    <option>Родной русский язык</option>
+                                    <option>Родная литература</option>
+                                </optgroup>
+                                <optgroup label="Иностранные языки">
+                                    <option>Английский язык</option>
+                                    <option>Башкирский язык</option>
+                                </optgroup>
+                                <optgroup label="Математика">
+                                    <option>Алгебра</option>
+                                    <option>Геометрия</option>
+                                    <option>Вероятность и статистика</option>
+                                </optgroup>
+                                <optgroup label="Информатика">
+                                    <option>Информатика</option>
+                                </optgroup>
+                                <optgroup label="История и обществознание">
+                                    <option>Всеобщая история</option>
+                                    <option>История России</option>
+                                    <option>Обществознание</option>
+                                </optgroup>
+                                <optgroup label="Естественные науки">
+                                    <option>География</option>
+                                    <option>Биология</option>
+                                    <option>Физика</option>
+                                </optgroup>
+                                <optgroup label="Другие предметы">
+                                    <option>Труд (технология)</option>
+                                    <option>Изобразительное искусство (ИЗО)</option>
+                                    <option>Физическая культура</option>
+                                    <option>Музыка</option>
+                                    <option>Разговоры о важном</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Описание задания</label>
+                            <input type="text" id="homeworkText" placeholder="Например: §15, упр. 23-25">
+                        </div>
+                        <div class="form-group">
+                            <label>Дата выполнения</label>
+                            <input type="date" id="homeworkDate">
+                        </div>
+                        <button class="add-btn" onclick="addHomework()">Добавить</button>
+                    </div>
+                </div>
+
+                <div class="homework-list">
+                    <h3>Домашние задания</h3>
+                    <div id="homeworkList"></div>
+                </div>
+            </div>
+
+            <!-- Вкладка списка класса -->
+            <div id="classlistTab" style="display:none;">
+                <div class="class-list">
+                    <h3>Список класса 7К</h3>
+                    <div id="classList"></div>
+                </div>
+            </div>
+
+            <!-- Вкладка учителей -->
+            <div id="teachersTab" style="display:none;">
+                <div class="teacher-list">
+                    <h3>Учителя 7К класса</h3>
+                    <div id="teacherList"></div>
+                </div>
+            </div>
+
+            <!-- Вкладка правил -->
+            <div id="rulesTab" style="display:none;">
+                <div class="rules-section">
+                    <h3>Правила для КК (Кадетского Класса)</h3>
+                    <div class="rule-item">1. Дисциплина и порядок</div>
+                    <div class="rule-item">2. Ответственность и самостоятельность</div>
+                    <div class="rule-item">3. Уважение к одноклассникам и к учителям</div>
+                    <div class="rule-item">4. Чистота и порядок</div>
+                    <div class="rule-item">5. Форма и внешний вид</div>
+                    <div class="rule-item">6. Взаимопомощь и поддержка</div>
+                    <div class="rule-item">7. Работа в команде</div>
+                    <div class="rule-item">8. Уважение к командиру</div>
+                    <div class="rule-item">9. Безопасность и осторожность</div>
+                    <div class="rule-item">10. Ответственность за кадетскую честь</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="developer-credit">Разработчик: <a href="#">Madarki</a></div>
+    </div>
+
+    <script>
+        // ========== ДАННЫЕ ПОЛЬЗОВАТЕЛЕЙ ==========
+        const DEFAULT_USERS = {
+            'admin': { password: 'admin123', role: 'admin', name: 'Администратор' },
+            'aydar_rifmirovich': { password: 'teacher05', role: 'teacher', name: 'Айдар Рифмирович', subjects: ['Труд (технология)', 'Изобразительное искусство (ИЗО)'] },
+            'albina_rishatovna': { password: 'teacher01', role: 'teacher', name: 'Альбина Ришатовна', subjects: ['Русский язык', 'Литература', 'Родной русский язык', 'Родная литература'] },
+            'gulnara_husnullovna': { password: 'teacher02', role: 'class_teacher', name: 'Гульнара Хуснуловна', subjects: ['Физическая культура', 'Разговоры о важном'] },
+            'zimfira_zufarovna': { password: 'teacher03', role: 'teacher', name: 'Зимфира Зуфаровна', subjects: ['Всеобщая история', 'История России'] },
+            'olesya_anatolevna': { password: 'teacher04', role: 'teacher', name: 'Олеся Анатольевна', subjects: ['Алгебра', 'Геометрия', 'Вероятность и статистика'] },
+            'antipov': { password: 'dragon77', role: 'commander', name: 'Антипов Данила' },
+            'bakhtiyarova': { password: 'tiger23', role: 'student', name: 'Бахтиярова Руфина' },
+            'vasilets': { password: 'phoenix45', role: 'student', name: 'Василец Ксения' },
+            'gaitova': { password: 'eagle12', role: 'student', name: 'Гаитова Юля' },
+            'gorbunova': { password: 'falcon89', role: 'starosta', name: 'Горбунова Евгения' },
+            'zhuravlev': { password: 'wolf34', role: 'student', name: 'Журавлев Вова' },
+            'zaripov': { password: 'bear56', role: 'student', name: 'Зарипов Тимур' },
+            'ziangirova': { password: 'hawk78', role: 'student', name: 'Зиангирова Милина' },
+            'kinzyabulatova': { password: 'lion90', role: 'student', name: 'Киньзябулатова Ильвина' },
+            'miniyarova': { password: 'eagle22', role: 'student', name: 'Миниярова Ксения' },
+            'pavlichenkov': { password: 'wolf33', role: 'student', name: 'Павличенков Николай' },
+            'rasaev': { password: 'bear44', role: 'student', name: 'Расаев Арсен' },
+            'fakhrutdinova': { password: 'hawk55', role: 'student', name: 'Фахрутдинова Аркадий' },
+            'khazigaleev': { password: 'lion66', role: 'student', name: 'Хазигалеев Тимур' },
+            'shokurova_v': { password: 'dragon88', role: 'student', name: 'Шокурова Виктория' },
+            'shokurova_e': { password: 'tiger99', role: 'student', name: 'Шокурова Елизавета' },
+            'yusupov': { password: 'panther21', role: 'student', name: 'Юсупов Богдан' }
+        };
+
+        let users = {};
+        let homeworks = [];
+        let currentUser = '';
+        let currentUserData = null;
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        function initUsers() {
+            users = JSON.parse(JSON.stringify(DEFAULT_USERS));
+            try {
+                const savedUsers = localStorage.getItem('users7k_v10');
+                if (savedUsers) {
+                    const parsed = JSON.parse(savedUsers);
+                    Object.keys(parsed).forEach(login => {
+                        if (users[login]) {
+                            if (parsed[login].password) users[login].password = parsed[login].password;
+                            if (parsed[login].avatar) users[login].avatar = parsed[login].avatar;
+                        }
+                    });
+                }
+            } catch(e) { console.error('Ошибка загрузки пользователей:', e); }
+        }
+
+        function saveUsers() {
+            try { localStorage.setItem('users7k_v10', JSON.stringify(users)); } catch(e) { console.error(e); }
+        }
+
+        // ========== ЗАГРУЗКА/СОХРАНЕНИЕ ЗАДАНИЙ ==========
+        function loadData() {
+            try {
+                const saved = localStorage.getItem('homeworks7k_v2');
+                if (saved) {
+                    homeworks = JSON.parse(saved);
+                } else {
+                    homeworks = [];
+                }
+            } catch(e) {
+                console.error('Ошибка загрузки заданий:', e);
+                homeworks = [];
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('homeworks7k_v2', JSON.stringify(homeworks));
+                console.log('Данные сохранены. Всего заданий:', homeworks.length);
+            } catch(e) {
+                console.error('Ошибка сохранения:', e);
+                alert('Не удалось сохранить данные! Возможно, localStorage переполнен или запрещён.');
+            }
+        }
+
+        // ========== ТЕМА ==========
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme') || 'light';
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            document.getElementById('themeToggle').textContent = newTheme === 'light' ? '🌙' : '☀️';
+            try { localStorage.setItem('theme_7k', newTheme); } catch(e) {}
+        }
+
+        // ========== ВХОД ==========
+        function login() {
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.style.display = 'none';
+
+            if (users[username] && users[username].password === password) {
+                currentUser = username;
+                currentUserData = users[username];
+
+                document.getElementById('currentUser').textContent = currentUserData.name;
+
+                let roleText = 'Кадет';
+                switch(currentUserData.role) {
+                    case 'admin': roleText = 'Администратор'; break;
+                    case 'teacher': roleText = 'Учитель'; break;
+                    case 'class_teacher': roleText = 'Классный руководитель'; break;
+                    case 'commander': roleText = 'Командир класса'; break;
+                    case 'starosta': roleText = 'Староста'; break;
+                }
+                document.getElementById('userRole').textContent = roleText;
+
+                // Аватар
+                const avatarEl = document.getElementById('userAvatar');
+                if (currentUserData.avatar) {
+                    avatarEl.innerHTML = `<img src="${currentUserData.avatar}">`;
+                } else {
+                    avatarEl.innerHTML = `<span>${currentUserData.name.charAt(0)}</span>`;
+                }
+
+                // Показываем форму добавления только для учителей/админа
+                if (['admin','teacher','class_teacher'].includes(currentUserData.role)) {
+                    document.getElementById('addHomeworkSection').style.display = 'block';
+                } else {
+                    document.getElementById('addHomeworkSection').style.display = 'none';
+                }
+
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('diaryScreen').style.display = 'flex';
+
+                loadData();          // загружаем актуальные задания
+                renderHomeworks();
+                renderClassList();
+                renderTeachers();
+            } else {
+                errorEl.textContent = 'Неверный логин или пароль!';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // ========== ВЫХОД ==========
+        function logout() {
+            currentUser = '';
+            currentUserData = null;
+            document.getElementById('diaryScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+        }
+
+        // ========== ДОБАВЛЕНИЕ ЗАДАНИЯ ==========
+        function addHomework() {
+            if (!currentUserData || !['admin','teacher','class_teacher'].includes(currentUserData.role)) {
+                alert('У вас нет прав для добавления домашних заданий!');
+                return;
+            }
+
+            const subject = document.getElementById('subject').value;
+            const text = document.getElementById('homeworkText').value.trim();
+            const date = document.getElementById('homeworkDate').value;
+
+            if (!text) { alert('Введите описание задания!'); return; }
+            if (!date) { alert('Выберите дату!'); return; }
+
+            const homework = {
+                id: Date.now(),
+                subject,
+                text,
+                date,
+                addedBy: currentUser,
+                addedByName: currentUserData.name
+            };
+
+            homeworks.push(homework);
+            saveData();
+            renderHomeworks();
+            document.getElementById('homeworkText').value = '';
+            alert('Задание успешно добавлено!');
+        }
+
+        // ========== УДАЛЕНИЕ ЗАДАНИЯ (исправлено) ==========
+        function deleteHomework(id) {
+            if (!currentUserData || !['admin','teacher','class_teacher'].includes(currentUserData.role)) {
+                alert('У вас нет прав для удаления заданий!');
+                return;
+            }
+
+            const numericId = Number(id);
+            const homeworkToDelete = homeworks.find(hw => hw.id === numericId);
+            if (!homeworkToDelete) {
+                alert('Задание не найдено!');
+                return;
+            }
+
+            // Проверка для учителя: можно удалять только свои задания по своим предметам
+            if (currentUserData.role === 'teacher' || currentUserData.role === 'class_teacher') {
+                const isOwnSubject = currentUserData.subjects.includes(homeworkToDelete.subject);
+                const isOwnHomework = homeworkToDelete.addedBy === currentUser;
+                if (!isOwnSubject || !isOwnHomework) {
+                    alert('Вы можете удалять только свои задания по своим предметам!');
+                    return;
+                }
+            }
+
+            if (confirm(`Удалить задание "${homeworkToDelete.text}"?`)) {
+                homeworks = homeworks.filter(hw => hw.id !== numericId);
+                saveData();
+                renderHomeworks();
+                alert('Задание удалено!');
+            }
+        }
+
+        // ========== ОТОБРАЖЕНИЕ ЗАДАНИЙ ==========
+        function renderHomeworks() {
+            const list = document.getElementById('homeworkList');
+            if (!homeworks.length) {
+                list.innerHTML = '<div class="empty-message">Пока нет домашних заданий</div>';
+                return;
+            }
+
+            homeworks.sort((a,b) => new Date(a.date) - new Date(b.date));
+            const isTeacherOrAdmin = currentUserData && ['admin','teacher','class_teacher'].includes(currentUserData.role);
+
+            list.innerHTML = homeworks.map(hw => {
+                const date = new Date(hw.date).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                let canDelete = false;
+                if (currentUserData?.role === 'admin') canDelete = true;
+                else if (currentUserData?.role === 'teacher' || currentUserData?.role === 'class_teacher') {
+                    canDelete = currentUserData.subjects.includes(hw.subject) && hw.addedBy === currentUser;
+                }
+
+                return `
+                    <div class="homework-item">
+                        <div class="homework-subject">${hw.subject}</div>
+                        <div class="homework-description">${hw.text}</div>
+                        <div class="homework-date">📅 ${date}</div>
+                        <div class="homework-author">Добавил: ${hw.addedByName}</div>
+                        ${canDelete ? `<button class="delete-btn" style="display:inline-block;" onclick="deleteHomework(${hw.id})">Удалить</button>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== СПИСОК КЛАССА ==========
+        function renderClassList() {
+            const list = document.getElementById('classList');
+            const students = Object.entries(users)
+                .filter(([_, d]) => ['student','commander','starosta'].includes(d.role))
+                .sort((a,b) => a[1].name.localeCompare(b[1].name, 'ru'));
+
+            list.innerHTML = students.map(([login, data]) => {
+                let roleBadge = '<span class="student-role role-student">Кадет</span>';
+                if (data.role === 'commander') roleBadge = '<span class="student-role role-commander">Командир</span>';
+                if (data.role === 'starosta') roleBadge = '<span class="student-role role-starosta">Староста</span>';
+                return `<div class="student-item"><span class="student-name">${data.name}</span>${roleBadge}</div>`;
+            }).join('');
+        }
+
+        // ========== УЧИТЕЛЯ ==========
+        function renderTeachers() {
+            const list = document.getElementById('teacherList');
+            const teachers = Object.entries(users)
+                .filter(([_, d]) => ['teacher','class_teacher'].includes(d.role))
+                .sort((a,b) => a[1].name.localeCompare(b[1].name, 'ru'));
+
+            list.innerHTML = teachers.map(([login, data]) => {
+                let roleBadge = '<span class="student-role role-teacher">Учитель</span>';
+                if (data.role === 'class_teacher') roleBadge = '<span class="student-role role-class-teacher">Классный руководитель</span>';
+                const subjects = data.subjects ? data.subjects.join(', ') : '';
+                return `<div class="teacher-item">
+                    <div>
+                        <div class="teacher-name">${data.name}</div>
+                        <div style="font-size:11px;color:var(--text-light)">${subjects}</div>
+                    </div>
+                    ${roleBadge}
+                </div>`;
+            }).join('');
+        }
+
+        // ========== ВКЛАДКИ ==========
+        function switchTab(tab) {
+            document.getElementById('homeworkTab').style.display = tab === 'homework' ? 'block' : 'none';
+            document.getElementById('classlistTab').style.display = tab === 'classlist' ? 'block' : 'none';
+            document.getElementById('teachersTab').style.display = tab === 'teachers' ? 'block' : 'none';
+            document.getElementById('rulesTab').style.display = tab === 'rules' ? 'block' : 'none';
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // ========== СМЕНА ПАРОЛЯ ==========
+        function openPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+        function changePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (current !== currentUserData.password) { alert('Неверный текущий пароль!'); return; }
+            if (newPass.length < 4) { alert('Пароль слишком короткий!'); return; }
+            if (newPass !== confirm) { alert('Пароли не совпадают!'); return; }
+
+            currentUserData.password = newPass;
+            users[currentUser].password = newPass;
+            saveUsers();
+            closePasswordModal();
+            alert('Пароль успешно изменён!');
+        }
+
+        // ========== АВАТАР ==========
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { alert('Выберите изображение!'); return; }
+            if (file.size > 2*1024*1024) { alert('Файл слишком большой! Максимум 2MB'); return; }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (currentUser && users[currentUser]) {
+                    users[currentUser].avatar = e.target.result;
+                    saveUsers();
+                    document.getElementById('userAvatar').innerHTML = `<img src="${e.target.result}">`;
+                    alert('Аватарка обновлена!');
+                }
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ==========
+        window.onload = function() {
+            initUsers();
+            loadData();  // загружаем задания сразу
+            document.getElementById('homeworkDate').valueAsDate = new Date();
+
+            // Тема: светлая по умолчанию, но если сохранена тёмная – применяем
+            const savedTheme = localStorage.getItem('theme_7k');
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeToggle').textContent = '☀️';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.getElementById('themeToggle').textContent = '🌙';
+            }
+        };
+    </script>
+</body>
+</html>
